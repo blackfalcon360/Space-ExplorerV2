@@ -197,22 +197,54 @@ public class MainActivity extends Activity implements SensorEventListener, Locat
             @Override public void onStartTrackingTouch(SeekBar sb) { }
             @Override public void onStopTrackingTouch(SeekBar sb) { }
         });
+        
         LinearLayout tRow = new LinearLayout(this);
         tRow.setOrientation(LinearLayout.HORIZONTAL);
-        TextView dayBack = pill("\u25C0 \u22121 day");
+        
+        // Same row buttons: -1w, -1d, -1h, Now, +1h, +1d, +1w
+        TextView weekBack = pill("\u22121w");
+        TextView dayBack = pill("\u22121d");
+        TextView hourBack = pill("\u22121h");
         TextView nowBtn = pill("Now");
-        TextView dayFwd = pill("+1 day \u25B6");
-        dayBack.setTextSize(13);
-        nowBtn.setTextSize(13);
-        dayFwd.setTextSize(13);
+        TextView hourFwd = pill("+1h");
+        TextView dayFwd = pill("+1d");
+        TextView weekFwd = pill("+1w");
+
+        weekBack.setTextSize(11);
+        dayBack.setTextSize(11);
+        hourBack.setTextSize(11);
+        nowBtn.setTextSize(11);
+        hourFwd.setTextSize(11);
+        dayFwd.setTextSize(11);
+        weekFwd.setTextSize(11);
+
+        weekBack.setPadding(dp(2), dp(8), dp(2), dp(8));
+        dayBack.setPadding(dp(2), dp(8), dp(2), dp(8));
+        hourBack.setPadding(dp(2), dp(8), dp(2), dp(8));
+        nowBtn.setPadding(dp(2), dp(8), dp(2), dp(8));
+        hourFwd.setPadding(dp(2), dp(8), dp(2), dp(8));
+        dayFwd.setPadding(dp(2), dp(8), dp(2), dp(8));
+        weekFwd.setPadding(dp(2), dp(8), dp(2), dp(8));
+
+        weekBack.setOnClickListener(v -> { dayShift -= 7; recalcOffset(); updateSky(); });
         dayBack.setOnClickListener(v -> { dayShift--; recalcOffset(); updateSky(); });
-        dayFwd.setOnClickListener(v -> { dayShift++; recalcOffset(); updateSky(); });
+        hourBack.setOnClickListener(v -> { sliderMin -= 60; recalcOffset(); updateSky(); });
         nowBtn.setOnClickListener(v -> resetTime());
+        hourFwd.setOnClickListener(v -> { sliderMin += 60; recalcOffset(); updateSky(); });
+        dayFwd.setOnClickListener(v -> { dayShift++; recalcOffset(); updateSky(); });
+        weekFwd.setOnClickListener(v -> { dayShift += 7; recalcOffset(); updateSky(); });
+
         LinearLayout.LayoutParams tl = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
-        tl.setMargins(dp(3), 0, dp(3), 0);
+        tl.setMargins(dp(1), 0, dp(1), 0);
+        
+        tRow.addView(weekBack, tl);
         tRow.addView(dayBack, tl);
+        tRow.addView(hourBack, tl);
         tRow.addView(nowBtn, tl);
+        tRow.addView(hourFwd, tl);
         tRow.addView(dayFwd, tl);
+        tRow.addView(weekFwd, tl);
+
         timeCard.addView(timeTv);
         timeCard.addView(seek);
         timeCard.addView(tRow);
@@ -238,7 +270,7 @@ public class MainActivity extends Activity implements SensorEventListener, Locat
 
         statusTv = tv(12, GRAY, false);
 
-        refreshBtn = pill("\u21BB  Update my sky");
+        refreshBtn = pill("\u21BB\u00A0 Update my sky");
         refreshBtn.setOnClickListener(v -> refreshLocation());
 
         panelBox.addView(title);
@@ -281,8 +313,8 @@ public class MainActivity extends Activity implements SensorEventListener, Locat
         LinearLayout tabs = new LinearLayout(this);
         tabs.setOrientation(LinearLayout.HORIZONTAL);
         tabs.setBackgroundColor(Color.parseColor("#0C0C20"));
-        tabSky = tab("\uD83E\uDDED  Sky");
-        tabPlanets = tab("\uD83E\uDE90  Planets");
+        tabSky = tab("\uD83E\uDDED\u00A0 Sky");
+        tabPlanets = tab("\uD83E\uDE90\u00A0 Planets");
         tabSky.setOnClickListener(v -> showTab(true));
         tabPlanets.setOnClickListener(v -> showTab(false));
         tabs.addView(tabSky, new LinearLayout.LayoutParams(0, dp(52), 1f));
@@ -463,7 +495,7 @@ public class MainActivity extends Activity implements SensorEventListener, Locat
         } else {
             long m = Math.abs(offsetMs) / 60000L;
             long d = m / 1440L, h = (m % 1440L) / 60L, mm = m % 60L;
-            rel = (offsetMs > 0 ? "+" : "\u2212") + (d > 0 ? d + " d " : "") + h + " h" + (mm > 0 ? " " + mm + " min" : "");
+            rel = (offsetMs > 0 ? "+" : "\u2212") + (d > 0 ? d + " d " : "") + (h > 0 ? h + " h " : "") + (mm > 0 ? mm + " min" : "");
         }
         timeTv.setText("\uD83D\uDD52 " + when + "   (" + rel + ")");
     }
